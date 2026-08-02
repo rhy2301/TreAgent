@@ -1,12 +1,16 @@
-# --- 현재 단계에서 실제로 필요한 것 ---
+# --- API 서버 ---
 fastapi>=0.115.0
 uvicorn[standard]>=0.30.0
 pydantic>=2.9.0
 python-dotenv>=1.0.0
 
-# --- 3단계(온체인/AI 연동)에서 사용 ---
-google-generativeai>=0.8.0
-solders>=0.21.0
-solana>=0.34.0
+# --- 온체인 (chain/) ---
+# solana 0.40 부터 TxOpts 가 solana.rpc.models 로 옮겨졌고 send_transaction 이
+# VersionedTransaction 만 받는다. chain/ 은 그 API 기준으로 작성돼 있다.
+solana>=0.40.0
+solders>=0.28.0
 base58>=2.1.1
 httpx>=0.27.0
+
+# --- AI (4단계) ---
+google-generativeai>=0.8.0
