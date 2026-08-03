@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useState } from 'react'
-import type { ScenarioName } from './types'
+import { useEffect, useMemo, useReducer, useState } from 'react'
+import type { ScenarioName, Snapshot } from './types'
 import { SCENARIOS } from './types'
 import { useSnapshot } from './lib/useSnapshot'
 import {
@@ -8,7 +8,9 @@ import {
   reached,
   revealed,
   runReducer,
+  STAGE_SEQUENCE,
 } from './lib/stages'
+import { displaySnapshot, runExecutionCycle } from './lib/execution'
 import { Sidebar } from './components/Sidebar'
 import { Header } from './components/Header'
 import { KpiRow } from './components/KpiRow'
@@ -55,8 +57,21 @@ function initialScenario(): ScenarioName {
 
 export function App() {
   const [scenario, setScenario] = useState<ScenarioName>(initialScenario)
-  const { snap, error, loading } = useSnapshot(scenario)
+  const { snap: baseSnap, error, loading } = useSnapshot(scenario)
   const [run, dispatch] = useReducer(runReducer, initialRunState)
+
+  // `committed` is the persisted state a new run builds on; `pending` is the
+  // next cycle's precomputed result, revealed field-by-field as stages pass
+  // (see lib/execution.ts). This is what makes Run Agent actually change
+  // wallet balances/decision id/x402 proof instead of replaying the same
+  // static snapshot.json every time.
+  const [committed, setCommitted] = useState<Snapshot | null>(null)
+  const [pending, setPending] = useState<Snapshot | null>(null)
+
+  useEffect(() => {
+    setCommitted(baseSnap)
+    setPending(null)
+  }, [baseSnap])
 
   // Each stage holds for its scripted duration, then hands off to the next.
   useEffect(() => {
@@ -70,6 +85,29 @@ export function App() {
     dispatch({ type: 'RESET' })
   }, [scenario])
 
+  // Cycle finished — fold the precomputed result into the persisted state so
+  // the next Run Agent click builds on it (transactions/decisions accumulate).
+  useEffect(() => {
+    if (run.stage === 'DONE' && pending) setCommitted(pending)
+  }, [run.stage, pending])
+
+  const snap = useMemo(
+    () => (committed ? displaySnapshot(committed, pending, run.stage) : null),
+    [committed, pending, run.stage],
+  )
+
+  const handleRun = () => {
+    if (!committed) return
+    setPending(runExecutionCycle(committed))
+    dispatch({ type: 'START' })
+  }
+
+  const handleReset = () => {
+    setCommitted(baseSnap)
+    setPending(null)
+    dispatch({ type: 'RESET' })
+  }
+
   const stage = run.stage
   const show = (target: Parameters<typeof reached>[1]) =>
     revealed(stage, target, run.hasRun)
@@ -77,7 +115,8 @@ export function App() {
   const maxChecks = snap
     ? Math.max(0, ...snap.guard.map((g) => g.checks.length))
     : 0
-  const staggered = useStaggeredChecks(stage === 'VALIDATING', maxChecks, 1400)
+  const validatingMs = STAGE_SEQUENCE.find((s) => s.stage === 'VALIDATING')?.ms ?? 1400
+  const staggered = useStaggeredChecks(stage === 'VALIDATING', maxChecks, validatingMs)
   // Before a run, and after VALIDATING, every check is shown at once.
   const checkCount =
     stage === 'VALIDATING' ? staggered : show('VALIDATING') ? maxChecks : 0
@@ -92,7 +131,8 @@ export function App() {
           run={run}
           scenario={scenario}
           onScenario={setScenario}
-          onRun={() => dispatch({ type: 'START' })}
+          onRun={handleRun}
+          onReset={handleReset}
         />
 
         <main className="flex flex-col gap-4 px-8 py-5">

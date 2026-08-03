@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import type { Inference, Snapshot } from '../types'
 import { num, usdc, usdcFine } from '../lib/format'
 import { hasPaymentFlow, inferenceLinkable, providerMode } from '../lib/derive'
+import { STAGE_SEQUENCE } from '../lib/stages'
 import { Badge, Card, CardTitle, CopyButton, Info, Mono, Skeleton } from './ui'
 
 const PROJECTED_TOOLTIP =
   '실제 온체인 잔고가 아닌 예상값입니다. 추론 비용을 운영비로 반영했을 때의 잔고입니다.'
+
+const REASONING_MS = STAGE_SEQUENCE.find((s) => s.stage === 'REASONING')?.ms ?? 2500
 
 /** Latency counts up while REASONING runs, then settles on the real value. */
 function useLatencyCounter(target: number | null, running: boolean, done: boolean) {
@@ -26,8 +29,8 @@ function useLatencyCounter(target: number | null, running: boolean, done: boolea
     const started = performance.now()
     const tick = (t: number) => {
       const elapsed = t - started
-      // Track the scripted REASONING window (2500ms) but display real ms.
-      const ratio = Math.min(1, elapsed / 2500)
+      // Track the scripted REASONING window but display the real ms value.
+      const ratio = Math.min(1, elapsed / REASONING_MS)
       setShown(Math.round(target * ratio))
       if (ratio < 1) raf.current = requestAnimationFrame(tick)
     }
@@ -325,11 +328,12 @@ export function InferenceCard({
         )}
 
         <p className="mt-3 border-t border-border pt-3 text-[10.5px] leading-[1.6] text-muted">
-          TreAgent의 자금 집행은 <span className="text-mint">Solana Devnet에서 실제 실행</span>
-          되며, Gemini x402 결제 흐름은{' '}
-          <span className="text-ai">pay.sh 공식 샌드박스에서 검증</span>되었습니다. 추론
-          비용은 <Mono className="text-txt-2">API_USAGE</Mono> 운영비로 기표되어 다음 판단
-          사이클의 예측에 반영됩니다.
+          TreAgent의 자금 집행·x402 결제 로직은{' '}
+          <span className="text-txt-2">Solana Devnet과 pay.sh 샌드박스를 대상으로 구현</span>
+          되어 있으며, 이 데모는 두 네트워크를 실제로 호출하지 않는{' '}
+          <span className="text-warning">재현 가능한 시뮬레이션 모드</span>로 실행됩니다.
+          추론 비용은 <Mono className="text-txt-2">API_USAGE</Mono> 운영비로 기표되어 다음
+          판단 사이클의 예측에 반영됩니다.
         </p>
       </div>
     </Card>

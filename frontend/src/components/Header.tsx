@@ -1,8 +1,49 @@
+import { useEffect, useRef, useState } from 'react'
 import type { ScenarioName, Snapshot } from '../types'
 import { SCENARIOS } from '../types'
 import { clockTime } from '../lib/format'
 import { currentSpec, isRunning, type RunState } from '../lib/stages'
 import { StatusDot } from './ui'
+
+/**
+ * Deliberately not in the Run Agent / Pause Agent cluster — a stray click here
+ * during the pitch shouldn't be possible. Needs a second click within 3s to
+ * actually fire, and lives in the stage rail instead of the button row.
+ */
+function ResetButton({ onReset, visible }: { onReset: () => void; visible: boolean }) {
+  const [armed, setArmed] = useState(false)
+  const timer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  if (!visible) return null
+
+  const handleClick = () => {
+    if (!armed) {
+      setArmed(true)
+      timer.current = window.setTimeout(() => setArmed(false), 3000)
+      return
+    }
+    window.clearTimeout(timer.current)
+    setArmed(false)
+    onReset()
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      title="리허설용 — 시나리오를 초기 상태로 되돌립니다 (한 번 더 눌러 확인)"
+      className={`mono absolute top-1/2 right-8 -translate-y-1/2 rounded-[7px] border px-2 py-[3px] text-[9.5px] tracking-wide transition-colors duration-150 ${
+        armed
+          ? 'border-danger/60 bg-danger/10 text-danger'
+          : 'border-border text-muted hover:border-mint/40 hover:text-mint'
+      }`}
+    >
+      {armed ? '다시 눌러 초기화 확인' : 'Reset'}
+    </button>
+  )
+}
 
 /**
  * No network badge here on purpose: a single "Solana Devnet" chip in the header
@@ -15,12 +56,14 @@ export function Header({
   scenario,
   onScenario,
   onRun,
+  onReset,
 }: {
   snap: Snapshot | null
   run: RunState
   scenario: ScenarioName
   onScenario: (s: ScenarioName) => void
   onRun: () => void
+  onReset: () => void
 }) {
   const spec = currentSpec(run)
   const running = isRunning(run.stage)
@@ -112,6 +155,7 @@ export function Header({
             </span>
           )}
         </div>
+        <ResetButton onReset={onReset} visible={!running} />
       </div>
     </header>
   )

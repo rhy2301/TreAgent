@@ -1,7 +1,7 @@
 import type { Snapshot, TxRow } from '../types'
 import { clockTime, shortHash, usdc } from '../lib/format'
 import { isInferenceTx, isLinkable } from '../lib/derive'
-import { Badge, Card, CardTitle, CopyButton, Mono, StatusDot } from './ui'
+import { Badge, Card, CardTitle, CopyButton, Info, Mono, StatusDot } from './ui'
 
 const STATUS: Record<string, { tone: 'mint' | 'warning' | 'danger'; pulse: boolean }> = {
   CONFIRMED: { tone: 'mint', pulse: false },
@@ -21,7 +21,12 @@ function NetworkBadge({ row }: { row: TxRow }) {
 
 function SignatureCell({ row }: { row: TxRow }) {
   if (!row.signature) {
-    return <span className="text-[11px] text-muted">—</span>
+    return (
+      <span className="flex items-center text-[11px] text-muted">
+        —
+        <Info text="집행 로직은 구현되어 있으나, 이 데모는 실제 온체인 서명 없이 시뮬레이션으로 실행됩니다." />
+      </span>
+    )
   }
   // Sole rule: an explorer URL makes it linkable. Never inspect `network`.
   if (isLinkable(row)) {
