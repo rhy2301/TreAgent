@@ -40,7 +40,6 @@ function NavIcon({ id }: { id: string }) {
 export function Sidebar({ snap }: { snap: Snapshot | null }) {
   const treasury = snap?.networks.treasury
   const inference = snap?.networks.inference
-  const inferenceIdle = inference ? inference.status.toUpperCase() === 'NOT_USED' : false
 
   return (
     <aside className="flex w-[236px] shrink-0 flex-col border-r border-border bg-bg-2">
@@ -87,24 +86,27 @@ export function Sidebar({ snap }: { snap: Snapshot | null }) {
             Networks
           </div>
 
-          <div className="border-l-2 border-mint/60 pl-2">
+          <div className="border-l-2 border-warning/50 pl-2">
             <div className="flex min-w-0 items-center gap-2 text-[11px] text-txt-2">
-              <StatusDot tone="mint" />
+              <StatusDot tone="warning" />
               <span className="truncate" title={treasury?.label}>
                 {treasury?.label ?? 'Solana Devnet'}
               </span>
             </div>
             <div className="mt-0.5 flex items-baseline justify-between gap-2 pl-[15px]">
               <span className="text-[9px] tracking-wide text-muted">자금 집행</span>
-              <span className="mono text-[10px] text-mint">
-                {treasury?.status ?? '—'}
+              <span
+                className="mono text-[10px] text-warning"
+                title="이 데모는 실제 devnet 연결 없이 재현 가능한 시뮬레이션으로 실행됩니다."
+              >
+                SIMULATED
               </span>
             </div>
           </div>
 
-          <div className="mt-2.5 border-l-2 border-ai/60 pl-2">
+          <div className="mt-2.5 border-l-2 border-warning/50 pl-2">
             <div className="flex min-w-0 items-center gap-2 text-[11px] text-txt-2">
-              <StatusDot tone={inferenceIdle ? 'muted' : 'ai'} />
+              <StatusDot tone="warning" />
               <span className="truncate" title={inference?.label}>
                 {inference?.label ?? 'pay.sh Sandbox'}
               </span>
@@ -112,9 +114,10 @@ export function Sidebar({ snap }: { snap: Snapshot | null }) {
             <div className="mt-0.5 flex items-baseline justify-between gap-2 pl-[15px]">
               <span className="text-[9px] tracking-wide text-muted">x402 결제</span>
               <span
-                className={`mono text-[10px] ${inferenceIdle ? 'text-muted' : 'text-ai'}`}
+                className="mono text-[10px] text-warning"
+                title="이 데모는 실제 pay.sh 호출 없이 재현 가능한 시뮬레이션으로 실행됩니다."
               >
-                {inference?.status ?? '—'}
+                SIMULATED
               </span>
             </div>
           </div>

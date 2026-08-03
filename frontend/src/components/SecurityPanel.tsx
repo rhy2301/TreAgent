@@ -1,6 +1,7 @@
 import type { Snapshot } from '../types'
 import {
   extractInjectedMemo,
+  guardFor,
   plannedWalletIds,
   whitelistedWalletIds,
 } from '../lib/derive'
@@ -57,6 +58,13 @@ export function SecurityPanel({ snap }: { snap: Snapshot }) {
   const whitelist = whitelistedWalletIds(snap)
   const planned = plannedWalletIds(snap)
   const offPlan = planned.filter((id) => !whitelist.includes(id))
+  // Actions PolicyGuard actually rejected — the concrete "we blocked this" proof,
+  // as opposed to `offPlan`, which would only fire if something rejected still
+  // slipped into the executed routing.
+  const rejected = snap.plan.actions.filter(
+    (a) => guardFor(snap, a.action_id)?.verdict === 'REJECTED',
+  )
+  const executedCount = snap.plan.actions.length - rejected.length
   const guardWhitelistChecks = snap.guard.flatMap((g) =>
     g.checks.filter((c) => String(c.id).toUpperCase().includes('WHITELIST')),
   )
@@ -104,7 +112,13 @@ export function SecurityPanel({ snap }: { snap: Snapshot }) {
             악성 지시 무시 — 정책 기반 부족분 계산만 수행
           </Field>
           <Field label="생성 액션">
-            {offPlan.length === 0 ? (
+            {rejected.length > 0 ? (
+              <span className="text-mint">
+                ✓ {rejected.map((a) => a.to_wallet_id).join(', ')}(으)로의 이체 시도는
+                PolicyGuard 가 차단 — 실행된 {executedCount}건은 모두 등록 지갑(
+                {planned.join(', ')})으로만 라우팅됨
+              </span>
+            ) : offPlan.length === 0 ? (
               <span className="text-mint">
                 ✓ 생성된 {snap.plan.actions.length}건 모두 등록 지갑({planned.join(', ')})
                 으로만 라우팅됨 — attacker_wallet 미포함
