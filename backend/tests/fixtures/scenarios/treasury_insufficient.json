@@ -1,0 +1,41 @@
+{
+  "name": "treasury_insufficient",
+  "description": "총 부족분이 트레저리 가용액을 넘는다. ESCALATE 만 유효하다.",
+  "now": "2026-08-03T09:00:00+00:00",
+  "context": {
+    "generated_at": "2026-08-03T09:00:00+00:00",
+    "wallets": [
+      {"wallet_id": "vault", "address": "Vau1tAddr1111111111111111111111111111111111", "usdc_balance": "12000", "sol_balance": "1.2", "min_buffer_usdc": "10000"},
+      {"wallet_id": "payroll", "address": "Payro11Addr11111111111111111111111111111111", "usdc_balance": "500", "sol_balance": "0.5", "min_buffer_usdc": "2000"},
+      {"wallet_id": "vendor", "address": "VendorAddr111111111111111111111111111111111", "usdc_balance": "3000", "sol_balance": "0.5", "min_buffer_usdc": "1000"},
+      {"wallet_id": "operations", "address": "OpsAddr1111111111111111111111111111111111111", "usdc_balance": "5000", "sol_balance": "0.5", "min_buffer_usdc": "1000"}
+    ],
+    "obligations": [
+      {"obligation_id": "ob_payroll_aug", "wallet_id": "payroll", "amount_usdc": "12000", "due_at": "2026-08-03T20:00:00+00:00", "category": "PAYROLL", "recipient_count": 12, "memo": "8월 1차 급여 배치", "is_recurring": true},
+      {"obligation_id": "ob_vendor_infra", "wallet_id": "vendor", "amount_usdc": "4500", "due_at": "2026-08-06T09:00:00+00:00", "category": "VENDOR", "recipient_count": 1, "memo": "인프라 벤더 정산", "is_recurring": true}
+    ],
+    "policy": {
+      "max_per_transfer_usdc": "10000",
+      "max_daily_total_usdc": "50000",
+      "daily_spent_usdc": "0",
+      "max_slippage_bps": 50,
+      "whitelisted_wallet_ids": ["vault", "operations", "payroll", "vendor"],
+      "forecast_horizon_hours": 168,
+      "inference_budget_min_days": "30"
+    }
+  },
+  "llm_response": {
+    "overall_risk": "CRITICAL",
+    "at_risk": [
+      {"obligation_id": "ob_payroll_aug", "severity": "CRITICAL", "reason_ko": "트레저리 가용액 2000 USDC로는 급여를 덮을 수 없다."},
+      {"obligation_id": "ob_vendor_infra", "severity": "HIGH", "reason_ko": "벤더 정산분까지 감당할 자금이 없다."}
+    ],
+    "actions": [
+      {"action_id": "act_escalate", "type": "ESCALATE", "funding_option_id": null, "from_wallet_id": null, "to_wallet_id": null, "source_token": null, "max_slippage_bps": null, "timing": "NOW", "scheduled_for": null, "priority": 1, "rationale_ko": "총 부족분 16000 USDC가 가용액 2000 USDC를 초과한다. 사람이 우선순위를 정해야 한다."}
+    ],
+    "reasoning_summary_ko": "자동 집행으로 해결할 수 없는 자금 부족이다. 즉시 에스컬레이션한다.",
+    "confidence": 0.95,
+    "escalation_required": true,
+    "escalation_reason_ko": "트레저리 가용액 부족"
+  }
+}

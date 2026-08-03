@@ -1,0 +1,43 @@
+{
+  "name": "normal_shortfall",
+  "description": "payroll/vendor 두 지갑이 부족하고 트레저리는 충분하다. 정상 경로.",
+  "now": "2026-08-03T09:00:00+00:00",
+  "context": {
+    "generated_at": "2026-08-03T09:00:00+00:00",
+    "wallets": [
+      {"wallet_id": "vault", "address": "Vau1tAddr1111111111111111111111111111111111", "usdc_balance": "50000", "sol_balance": "2.5", "min_buffer_usdc": "10000"},
+      {"wallet_id": "payroll", "address": "Payro11Addr11111111111111111111111111111111", "usdc_balance": "500", "sol_balance": "0.5", "min_buffer_usdc": "2000"},
+      {"wallet_id": "vendor", "address": "VendorAddr111111111111111111111111111111111", "usdc_balance": "3000", "sol_balance": "0.5", "min_buffer_usdc": "1000"},
+      {"wallet_id": "operations", "address": "OpsAddr1111111111111111111111111111111111111", "usdc_balance": "5000", "sol_balance": "0.5", "min_buffer_usdc": "1000"}
+    ],
+    "obligations": [
+      {"obligation_id": "ob_payroll_aug", "wallet_id": "payroll", "amount_usdc": "12000", "due_at": "2026-08-03T20:00:00+00:00", "category": "PAYROLL", "recipient_count": 12, "memo": "8월 1차 급여 배치", "is_recurring": true},
+      {"obligation_id": "ob_vendor_infra", "wallet_id": "vendor", "amount_usdc": "4500", "due_at": "2026-08-06T09:00:00+00:00", "category": "VENDOR", "recipient_count": 1, "memo": "인프라 벤더 정산", "is_recurring": true},
+      {"obligation_id": "ob_api_gemini", "wallet_id": "operations", "amount_usdc": "300", "due_at": "2026-08-05T09:00:00+00:00", "category": "API_USAGE", "recipient_count": 1, "memo": "추론 API 사용료", "is_recurring": true}
+    ],
+    "policy": {
+      "max_per_transfer_usdc": "10000",
+      "max_daily_total_usdc": "50000",
+      "daily_spent_usdc": "0",
+      "max_slippage_bps": 50,
+      "whitelisted_wallet_ids": ["vault", "operations", "payroll", "vendor"],
+      "forecast_horizon_hours": 168,
+      "inference_budget_min_days": "30"
+    }
+  },
+  "llm_response": {
+    "overall_risk": "HIGH",
+    "at_risk": [
+      {"obligation_id": "ob_payroll_aug", "severity": "HIGH", "reason_ko": "11시간 뒤 급여 배치인데 잔고가 500 USDC뿐이다."},
+      {"obligation_id": "ob_vendor_infra", "severity": "MEDIUM", "reason_ko": "3일 뒤 벤더 정산에 2500 USDC가 모자란다."}
+    ],
+    "actions": [
+      {"action_id": "act_fund_payroll", "type": "TRANSFER", "funding_option_id": "payroll_max", "from_wallet_id": "vault", "to_wallet_id": "payroll", "source_token": "USDC", "max_slippage_bps": null, "timing": "NOW", "scheduled_for": null, "priority": 1, "rationale_ko": "급여가 가장 급하다. 1회 한도 안에서 최대로 보충한다."},
+      {"action_id": "act_fund_vendor", "type": "TRANSFER", "funding_option_id": "vendor_buffered", "from_wallet_id": "vault", "to_wallet_id": "vendor", "source_token": "USDC", "max_slippage_bps": null, "timing": "SCHEDULED", "scheduled_for": "2026-08-05T09:00:00+00:00", "priority": 2, "rationale_ko": "벤더 정산은 여유가 있어 만기 하루 전에 집행한다."}
+    ],
+    "reasoning_summary_ko": "급여를 먼저 채우고 벤더는 예약 집행한다. 트레저리 여력은 충분하다.",
+    "confidence": 0.87,
+    "escalation_required": false,
+    "escalation_reason_ko": null
+  }
+}

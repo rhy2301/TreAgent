@@ -1,0 +1,39 @@
+{
+  "name": "all_healthy",
+  "description": "모든 지갑이 예정 지출과 최소 버퍼를 감당한다. NOOP.",
+  "now": "2026-08-03T09:00:00+00:00",
+  "context": {
+    "generated_at": "2026-08-03T09:00:00+00:00",
+    "wallets": [
+      {"wallet_id": "vault", "address": "Vau1tAddr1111111111111111111111111111111111", "usdc_balance": "50000", "sol_balance": "2.5", "min_buffer_usdc": "10000"},
+      {"wallet_id": "payroll", "address": "Payro11Addr11111111111111111111111111111111", "usdc_balance": "20000", "sol_balance": "0.5", "min_buffer_usdc": "2000"},
+      {"wallet_id": "vendor", "address": "VendorAddr111111111111111111111111111111111", "usdc_balance": "10000", "sol_balance": "0.5", "min_buffer_usdc": "1000"},
+      {"wallet_id": "operations", "address": "OpsAddr1111111111111111111111111111111111111", "usdc_balance": "8000", "sol_balance": "0.5", "min_buffer_usdc": "1000"}
+    ],
+    "obligations": [
+      {"obligation_id": "ob_payroll_aug", "wallet_id": "payroll", "amount_usdc": "12000", "due_at": "2026-08-08T20:00:00+00:00", "category": "PAYROLL", "recipient_count": 12, "memo": "8월 1차 급여 배치", "is_recurring": true},
+      {"obligation_id": "ob_vendor_infra", "wallet_id": "vendor", "amount_usdc": "4500", "due_at": "2026-08-06T09:00:00+00:00", "category": "VENDOR", "recipient_count": 1, "memo": "인프라 벤더 정산", "is_recurring": true},
+      {"obligation_id": "ob_api_gemini", "wallet_id": "operations", "amount_usdc": "300", "due_at": "2026-08-05T09:00:00+00:00", "category": "API_USAGE", "recipient_count": 1, "memo": "추론 API 사용료", "is_recurring": true}
+    ],
+    "policy": {
+      "max_per_transfer_usdc": "10000",
+      "max_daily_total_usdc": "50000",
+      "daily_spent_usdc": "0",
+      "max_slippage_bps": 50,
+      "whitelisted_wallet_ids": ["vault", "operations", "payroll", "vendor"],
+      "forecast_horizon_hours": 168,
+      "inference_budget_min_days": "30"
+    }
+  },
+  "llm_response": {
+    "overall_risk": "LOW",
+    "at_risk": [],
+    "actions": [
+      {"action_id": "act_noop", "type": "NOOP", "funding_option_id": null, "from_wallet_id": null, "to_wallet_id": null, "source_token": null, "max_slippage_bps": null, "timing": "NOW", "scheduled_for": null, "priority": 1, "rationale_ko": "부족한 지갑이 없다. 이체하지 않는다."}
+    ],
+    "reasoning_summary_ko": "예측 구간 안에서 모든 지갑이 지출과 버퍼를 감당한다.",
+    "confidence": 0.99,
+    "escalation_required": false,
+    "escalation_reason_ko": null
+  }
+}

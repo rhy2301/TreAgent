@@ -1,0 +1,330 @@
+{
+  "generated_at": "2026-08-03T09:00:00+00:00",
+  "agent_status": "ACTIVE",
+  "decision_id": "dec_c8583bfcf3436dbf",
+  "context_hash": "c8583bfcf3436dbf229fa0c9faabb1394eb9dcb27c00dab59a0d449d2a11a77d",
+  "scenario": "inference_budget_low",
+  "networks": {
+    "treasury": {
+      "label": "Solana Devnet",
+      "status": "CONNECTED"
+    },
+    "inference": {
+      "label": "pay.sh Sandbox (Surfpool localnet)",
+      "status": "NOT_USED"
+    }
+  },
+  "kpi": {
+    "total_treasury_usdc": "58500",
+    "scheduled_payments_usdc": "16500",
+    "scheduled_payments_count": 2,
+    "at_risk_count": 2,
+    "at_risk_usdc": "16500",
+    "daily_limit_usdc": "50000",
+    "daily_spent_usdc": "0"
+  },
+  "wallets": [
+    {
+      "wallet_id": "operations",
+      "label": "Operations Wallet",
+      "address": "OpsAddr1111111111111111111111111111111111111",
+      "usdc_balance": "5000",
+      "required_outflow": "0.000000",
+      "min_buffer_usdc": "1000",
+      "shortfall": "0.000000",
+      "status": "HEALTHY",
+      "earliest_due_at": null
+    },
+    {
+      "wallet_id": "payroll",
+      "label": "Payroll Wallet",
+      "address": "Payro11Addr11111111111111111111111111111111",
+      "usdc_balance": "500",
+      "required_outflow": "12000.000000",
+      "min_buffer_usdc": "2000",
+      "shortfall": "13500.000000",
+      "status": "SHORTFALL",
+      "earliest_due_at": "2026-08-03T20:00:00+00:00"
+    },
+    {
+      "wallet_id": "vault",
+      "label": "Treasury Vault",
+      "address": "Vau1tAddr1111111111111111111111111111111111",
+      "usdc_balance": "50000",
+      "required_outflow": "0.000000",
+      "min_buffer_usdc": "10000",
+      "shortfall": "0.000000",
+      "status": "HEALTHY",
+      "earliest_due_at": null
+    },
+    {
+      "wallet_id": "vendor",
+      "label": "Vendor Wallet",
+      "address": "VendorAddr111111111111111111111111111111111",
+      "usdc_balance": "3000",
+      "required_outflow": "4500.000000",
+      "min_buffer_usdc": "1000",
+      "shortfall": "2500.000000",
+      "status": "SHORTFALL",
+      "earliest_due_at": "2026-08-06T09:00:00+00:00"
+    }
+  ],
+  "inference": {
+    "provider": "paysh",
+    "model": "gemini-3.5-flash",
+    "gateway_type": "self-hosted",
+    "payment_mode": null,
+    "payment_network": null,
+    "gateway_url": null,
+    "challenge_status": null,
+    "response_status": null,
+    "payment_signature": null,
+    "signature_verifiable": false,
+    "explorer_url": null,
+    "cost_usdc": null,
+    "assumed_unit_cost_usdc": "0.05",
+    "projected_daily_calls": 96,
+    "input_tokens": null,
+    "output_tokens": null,
+    "latency_ms": 0,
+    "degraded": true,
+    "degraded_reason": "게이팅이 호출을 건너뛰었다 (INFERENCE_BUDGET_LOW).",
+    "devnet_ops_balance": null,
+    "sandbox_balance_before": null,
+    "sandbox_balance_after": null,
+    "projected_ops_balance": null,
+    "estimated_runway_days": null,
+    "booked_as_obligation_id": null
+  },
+  "plan": {
+    "overall_risk": "HIGH",
+    "at_risk": [
+      {
+        "obligation_id": "ob_payroll_aug",
+        "severity": "HIGH",
+        "reason_ko": "payroll 지갑의 예측 잔고가 부족하다 (부족분 13500.000000 USDC)."
+      },
+      {
+        "obligation_id": "ob_vendor_infra",
+        "severity": "LOW",
+        "reason_ko": "vendor 지갑의 예측 잔고가 부족하다 (부족분 2500.000000 USDC)."
+      }
+    ],
+    "actions": [
+      {
+        "action_id": "fallback_fund_payroll",
+        "type": "TRANSFER",
+        "funding_option_id": "payroll_exact",
+        "from_wallet_id": "vault",
+        "to_wallet_id": "payroll",
+        "source_token": "USDC",
+        "max_slippage_bps": null,
+        "timing": "NOW",
+        "scheduled_for": null,
+        "priority": 1,
+        "rationale_ko": "payroll 부족분 13500.000000 USDC 를 트레저리에서 최소 충분 금액만 보충한다."
+      },
+      {
+        "action_id": "fallback_fund_vendor",
+        "type": "TRANSFER",
+        "funding_option_id": "vendor_exact",
+        "from_wallet_id": "vault",
+        "to_wallet_id": "vendor",
+        "source_token": "USDC",
+        "max_slippage_bps": null,
+        "timing": "SCHEDULED",
+        "scheduled_for": "2026-08-05T09:00:00Z",
+        "priority": 2,
+        "rationale_ko": "vendor 부족분 2500.000000 USDC 를 트레저리에서 최소 충분 금액만 보충한다."
+      }
+    ],
+    "reasoning_summary_ko": "2개 지갑을 급여 > 벤더 > API 순으로 보충한다 (결정론적 폴백).",
+    "confidence": 1.0,
+    "escalation_required": false,
+    "escalation_reason_ko": null
+  },
+  "guard": [
+    {
+      "action_id": "fallback_fund_payroll",
+      "verdict": "CLAMPED",
+      "requested_amount": "13500.000000",
+      "final_amount": "10000.000000",
+      "checks": [
+        {
+          "id": "SCHEMA",
+          "label": "스키마 파싱",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "WHITELIST",
+          "label": "wallet_id 화이트리스트",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "FUNDING_OPTION",
+          "label": "funding_option 실재·대상 일치",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "TREASURY_CONSISTENCY",
+          "label": "트레저리 일관성",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "PER_TRANSFER_LIMIT",
+          "label": "1회 이체 한도",
+          "result": "CLAMPED",
+          "note": "[5] 1회 한도 초과 13500.000000 -> 10000.000000 USDC 로 절삭."
+        },
+        {
+          "id": "DAILY_LIMIT",
+          "label": "일일 누적 한도",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "SLIPPAGE",
+          "label": "슬리피지 한도",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "LIVE_BALANCE",
+          "label": "서명 직전 잔고 재조회",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "IDEMPOTENCY",
+          "label": "intent_id 24h 멱등",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "CONFIDENCE",
+          "label": "confidence 하한",
+          "result": "PASS",
+          "note": null
+        }
+      ],
+      "notes": [
+        "[5] 1회 한도 초과 13500.000000 -> 10000.000000 USDC 로 절삭."
+      ]
+    },
+    {
+      "action_id": "fallback_fund_vendor",
+      "verdict": "APPROVED",
+      "requested_amount": "2500.000000",
+      "final_amount": "2500.000000",
+      "checks": [
+        {
+          "id": "SCHEMA",
+          "label": "스키마 파싱",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "WHITELIST",
+          "label": "wallet_id 화이트리스트",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "FUNDING_OPTION",
+          "label": "funding_option 실재·대상 일치",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "TREASURY_CONSISTENCY",
+          "label": "트레저리 일관성",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "PER_TRANSFER_LIMIT",
+          "label": "1회 이체 한도",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "DAILY_LIMIT",
+          "label": "일일 누적 한도",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "SLIPPAGE",
+          "label": "슬리피지 한도",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "LIVE_BALANCE",
+          "label": "서명 직전 잔고 재조회",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "IDEMPOTENCY",
+          "label": "intent_id 24h 멱등",
+          "result": "PASS",
+          "note": null
+        },
+        {
+          "id": "CONFIDENCE",
+          "label": "confidence 하한",
+          "result": "PASS",
+          "note": null
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "alerts": [],
+  "intents": [
+    {
+      "intent_id": "05312eda244e6f29443551569681b415ee78454d7e26607307c108ac4746badf",
+      "from_address": "Vau1tAddr1111111111111111111111111111111111",
+      "to_address": "Payro11Addr11111111111111111111111111111111",
+      "amount_usdc": "10000.000000",
+      "guard_verdict": "CLAMPED"
+    },
+    {
+      "intent_id": "b26eaf1ff5513524b4248cc7c129dd4687def630eba091b5d28ad7f6894989af",
+      "from_address": "Vau1tAddr1111111111111111111111111111111111",
+      "to_address": "VendorAddr111111111111111111111111111111111",
+      "amount_usdc": "2500.000000",
+      "guard_verdict": "APPROVED"
+    }
+  ],
+  "transactions": [
+    {
+      "time": "2026-08-03T09:00:00+00:00",
+      "type": "TRANSFER",
+      "network": "solana-devnet",
+      "from_label": "Treasury Vault",
+      "to_label": "Payroll Wallet",
+      "amount_usdc": "10000.000000",
+      "status": "PENDING",
+      "signature": null,
+      "explorer_url": null
+    },
+    {
+      "time": "2026-08-05T09:00:00+00:00",
+      "type": "TRANSFER",
+      "network": "solana-devnet",
+      "from_label": "Treasury Vault",
+      "to_label": "Vendor Wallet",
+      "amount_usdc": "2500.000000",
+      "status": "PENDING",
+      "signature": null,
+      "explorer_url": null
+    }
+  ],
+  "comparison": null
+}
