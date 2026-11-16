@@ -1,16 +1,14 @@
-# React + Vite
+# TreAgent Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript + Vite로 만든 TreAgent 대시보드입니다.
 
-Currently, two official plugins are available:
+판단 엔진이 만든 시나리오 스냅샷(`public/snapshot.<scenario>.json`)을 읽어
+지갑 잔고, AI 판단 근거, PolicyGuard 검사 결과, 집행 트랜잭션을 보여줍니다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev     # http://localhost:5173
+```
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+시나리오는 `?scenario=normal_shortfall | prompt_injection | inference_budget_low` 로 바꿀 수 있습니다.
+스냅샷을 새로 만드는 방법은 [docs/SETUP.md](../docs/SETUP.md#프론트엔드-실행)를 참고하세요.
