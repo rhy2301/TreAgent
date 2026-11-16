@@ -24,13 +24,13 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # backend/ 를 import 경로에 넣어 chain 패키지를 찾게 한다.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from chain import transfer, wallet  # noqa: E402
-from chain.client import (  # noqa: E402
+from chain import transfer, wallet
+from chain.client import (
     MIN_SOL_FOR_FEES,
     NETWORK,
     RPC_URL,
@@ -38,7 +38,7 @@ from chain.client import (  # noqa: E402
     close_client,
     explorer_address_url,
 )
-from chain.exceptions import SolanaError  # noqa: E402
+from chain.exceptions import SolanaError
 
 
 async def collect(wallet_id: str) -> dict[str, Any]:
@@ -186,7 +186,7 @@ async def main() -> int:
             signature = await transfer.request_airdrop(address, 1.0)
             print(f"  확정: {signature}\n")
 
-        result: Optional[dict[str, Any]] = None
+        result: dict[str, Any] | None = None
         if args.from_wallet:
             result = await do_transfer(
                 args.from_wallet, args.to, args.amount, args.dry_run

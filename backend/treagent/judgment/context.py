@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any, Protocol, runtime_checkable
 
@@ -159,7 +159,7 @@ def payment_to_obligation(payment: dict[str, Any]) -> Obligation:
 
 def _as_utc(value: Any) -> datetime:
     parsed = value if isinstance(value, datetime) else datetime.fromisoformat(str(value))
-    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
 # --------------------------------------------------------------------------- #
@@ -236,7 +236,7 @@ class ContextBuilder:
             inference_budget_min_days=self.inference_budget_min_days,
         )
         return DecisionContext(
-            generated_at=now or datetime.now(timezone.utc),
+            generated_at=now or datetime.now(UTC),
             wallets=wallets,
             obligations=self.obligations.list_obligations(),
             policy=policy,

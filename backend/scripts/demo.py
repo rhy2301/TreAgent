@@ -35,22 +35,22 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from treagent.judgment import forecaster, inference_cost  # noqa: E402
-from treagent.judgment.engine import CycleOutcome, JudgmentEngine  # noqa: E402
-from treagent.judgment.gating import GatingState  # noqa: E402
-from treagent.judgment.guard import (  # noqa: E402
+from treagent.judgment import forecaster, inference_cost
+from treagent.judgment.engine import CycleOutcome, JudgmentEngine
+from treagent.judgment.gating import GatingState
+from treagent.judgment.guard import (
     LOW_CONFIDENCE_THRESHOLD,
     CollectingAlertHook,
     PolicyGuard,
 )
-from treagent.judgment.models import (  # noqa: E402
+from treagent.judgment.models import (
     ZERO,
     DecisionContext,
     ExecutionIntent,
     Forecast,
     coerce_usdc,
 )
-from treagent.judgment.providers.base import LLMProvider, ProviderResult  # noqa: E402
+from treagent.judgment.providers.base import LLMProvider, ProviderResult
 
 SCENARIOS = ("normal_shortfall", "prompt_injection", "inference_budget_low")
 PROVIDERS = ("paysh", "aistudio", "mock")

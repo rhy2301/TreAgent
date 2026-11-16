@@ -7,7 +7,7 @@ run-cycle: 잔고 갱신 → analyze → (auto_execute 이면) execute 를 한 �
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
@@ -25,7 +25,7 @@ router = APIRouter(prefix="/api/agent", tags=["agent"])
 
 
 def _select_actions(
-    decision: dict[str, Any], action_indices: Optional[list[int]]
+    decision: dict[str, Any], action_indices: list[int] | None
 ) -> list[dict[str, Any]]:
     """실행 대상 액션을 고른다. 인덱스가 범위를 벗어나면 422."""
     actions = decision["actions"]
@@ -43,8 +43,8 @@ def _select_actions(
 
 def _perform_execution(
     decision: dict[str, Any],
-    action_indices: Optional[list[int]] = None,
-    approved_by: Optional[str] = None,
+    action_indices: list[int] | None = None,
+    approved_by: str | None = None,
     dry_run: bool = False,
 ) -> dict[str, Any]:
     """Decision 실행 본체. execute 와 run-cycle 이 공유한다.
@@ -218,7 +218,7 @@ def run_cycle() -> CycleResult:
         status=decision["risk_level"],
     )
 
-    execution: Optional[dict[str, Any]] = None
+    execution: dict[str, Any] | None = None
     if mock_data.get_policy()["auto_execute"]:
         execution = _perform_execution(decision, approved_by="agent(auto)")
 

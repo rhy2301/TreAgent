@@ -9,8 +9,8 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 from solana.exceptions import SolanaRpcException
 from solana.rpc.async_api import AsyncClient
@@ -79,7 +79,7 @@ _ANY_RPC_ERROR = _TRANSPORT_ERRORS + _RPC_ERRORS
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 # --------------------------------------------------------------------------- #
@@ -109,7 +109,7 @@ def _cache_set(kind: str, address: str, value: Any) -> Any:
     return value
 
 
-def invalidate_cache(address: Optional[str] = None) -> None:
+def invalidate_cache(address: str | None = None) -> None:
     """캐시를 무효화한다. address 를 주면 그 주소 항목만, 없으면 전체.
 
     전송이 확정된 직후 송신·수신 주소 양쪽에 대해 호출해서, 다음 조회가
@@ -132,7 +132,7 @@ def _rpc_failure(exc: Exception, what: str) -> RpcUnavailable:
     return RpcUnavailable(f"{what} 실패: RPC 노드에 도달할 수 없다. ({exc})")
 
 
-async def _get_token_account_raw(client: AsyncClient, ata: Pubkey) -> Optional[int]:
+async def _get_token_account_raw(client: AsyncClient, ata: Pubkey) -> int | None:
     """ATA 의 raw 잔고를 읽는다. 계정이 없으면 None.
 
     get_token_account_balance 대신 get_account_info 를 쓰는 이유:
@@ -255,12 +255,12 @@ def _validate_amount(amount: float) -> int:
 
 
 def _result(
-    signature: Optional[str],
+    signature: str | None,
     amount: float,
     from_address: str,
     to_address: str,
     dry_run: bool,
-    confirmed_at: Optional[datetime],
+    confirmed_at: datetime | None,
 ) -> dict[str, Any]:
     """transfer_usdc 의 반환 형태. mock 구현과 키·타입이 정확히 같아야 한다."""
     return {
@@ -347,7 +347,7 @@ async def _await_confirmation(
 
 async def _find_settled(
     client: AsyncClient, signatures: list[str]
-) -> Optional[tuple[str, TransactionStatus]]:
+) -> tuple[str, TransactionStatus] | None:
     """이미 제출한 서명 중 체인에 자리잡은 것을 찾는다.
 
     재전송 전에 반드시 거쳐야 하는 단계다. 앞선 시도가 사실은 통과했는데
@@ -623,7 +623,7 @@ async def get_recent_transactions(address: str, limit: int = 10) -> list[dict[st
 
     semaphore = asyncio.Semaphore(_TX_DETAIL_CONCURRENCY)
 
-    async def detail(signature: Signature) -> Optional[Any]:
+    async def detail(signature: Signature) -> Any | None:
         async with semaphore:
             try:
                 detail_resp = await client.get_transaction(
@@ -651,7 +651,7 @@ def _to_tx_record(entry: Any, detail: Any, address: str) -> dict[str, Any]:
     """서명 항목 + 상세를 TxRecord 모양의 dict 로 만든다."""
     signature = str(entry.signature)
     confirmed_at = (
-        datetime.fromtimestamp(entry.block_time, tz=timezone.utc)
+        datetime.fromtimestamp(entry.block_time, tz=UTC)
         if entry.block_time
         else _utcnow()
     )
@@ -683,7 +683,7 @@ def _to_tx_record(entry: Any, detail: Any, address: str) -> dict[str, Any]:
     }
 
 
-def _usdc_delta(detail: Any, address: str) -> tuple[float, Optional[str]]:
+def _usdc_delta(detail: Any, address: str) -> tuple[float, str | None]:
     """트랜잭션에서 해당 주소의 USDC 증감과 상대 주소를 뽑는다.
 
     Returns:
@@ -757,7 +757,7 @@ async def request_airdrop(address: str, sol_amount: float = 1.0) -> str:
     return str(signature)
 
 
-async def get_transaction(signature: str) -> Optional[dict[str, Any]]:
+async def get_transaction(signature: str) -> dict[str, Any] | None:
     """서명으로 트랜잭션 상세를 조회한다. 없으면 None."""
     client = get_client()
     try:
@@ -782,7 +782,7 @@ async def get_transaction(signature: str) -> Optional[dict[str, Any]]:
         "signature": signature,
         "slot": resp.value.slot,
         "block_time": (
-            datetime.fromtimestamp(resp.value.block_time, tz=timezone.utc)
+            datetime.fromtimestamp(resp.value.block_time, tz=UTC)
             if resp.value.block_time
             else None
         ),

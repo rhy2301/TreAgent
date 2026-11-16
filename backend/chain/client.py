@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Optional
 
 from dotenv import load_dotenv
 from solana.rpc.async_api import AsyncClient
@@ -73,7 +72,7 @@ _EXPLORER_ADDRESS = "https://explorer.solana.com/address/{address}?cluster={clus
 # 클라이언트 싱글턴
 # --------------------------------------------------------------------------- #
 
-_client: Optional[AsyncClient] = None
+_client: AsyncClient | None = None
 
 
 def get_client() -> AsyncClient:

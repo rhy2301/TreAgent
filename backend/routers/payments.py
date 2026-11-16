@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from fastapi import APIRouter, HTTPException, Query, status
 
 import mock_data
@@ -16,8 +14,8 @@ router = APIRouter(prefix="/api/payments", tags=["payments"])
 @router.get("/upcoming", response_model=list[ScheduledPayment], summary="예정 지출 목록")
 def list_upcoming(
     hours: int = Query(default=72, gt=0, le=720, description="조회 구간 (시간)"),
-    wallet_id: Optional[str] = Query(default=None, description="출금 지갑 id 로 필터"),
-    status_filter: Optional[PaymentStatus] = Query(
+    wallet_id: str | None = Query(default=None, description="출금 지갑 id 로 필터"),
+    status_filter: PaymentStatus | None = Query(
         default=None, alias="status", description="상태로 필터"
     ),
 ) -> list[ScheduledPayment]:

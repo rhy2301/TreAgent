@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -96,11 +96,11 @@ class ProposedAction(BaseModel):
     """AI가 제안한 단일 자금 이동 액션."""
 
     type: ActionType
-    from_wallet: Optional[str] = None
-    to_wallet: Optional[str] = None
-    amount: Optional[float] = Field(default=None, ge=0)
+    from_wallet: str | None = None
+    to_wallet: str | None = None
+    amount: float | None = Field(default=None, ge=0)
     token: str = "USDC"
-    execute_by: Optional[datetime] = Field(
+    execute_by: datetime | None = Field(
         default=None, description="이 시점까지는 실행되어야 함"
     )
     reason: str
@@ -134,8 +134,8 @@ class TxRecord(BaseModel):
 
     signature: str
     type: TxType
-    from_wallet: Optional[str] = None
-    to_wallet: Optional[str] = None
+    from_wallet: str | None = None
+    to_wallet: str | None = None
     amount: float
     explorer_url: str
     confirmed_at: datetime
@@ -148,7 +148,7 @@ class ExecutionResult(BaseModel):
     decision_id: str
     status: ExecutionStatus
     transactions: list[TxRecord] = Field(default_factory=list)
-    blocked_reason: Optional[str] = None
+    blocked_reason: str | None = None
 
 
 class LogEntry(BaseModel):
@@ -158,11 +158,11 @@ class LogEntry(BaseModel):
     type: LogType
     timestamp: datetime
     title: str
-    reasoning: Optional[str] = None
-    signature: Optional[str] = None
-    explorer_url: Optional[str] = None
-    amount: Optional[float] = None
-    status: Optional[str] = None
+    reasoning: str | None = None
+    signature: str | None = None
+    explorer_url: str | None = None
+    amount: float | None = None
+    status: str | None = None
 
 
 class Alert(BaseModel):
@@ -172,7 +172,7 @@ class Alert(BaseModel):
     severity: AlertSeverity
     title: str
     message: str
-    decision_id: Optional[str] = None
+    decision_id: str | None = None
     created_at: datetime
     acknowledged: bool = False
 
@@ -198,8 +198,8 @@ class DashboardSummary(BaseModel):
     at_risk_count: int
     risk_level: RiskLevel
     headline: str = Field(..., description="한 줄 요약 문구")
-    last_cycle_at: Optional[datetime] = None
-    next_cycle_at: Optional[datetime] = None
+    last_cycle_at: datetime | None = None
+    next_cycle_at: datetime | None = None
     daily_used: float
     daily_limit: float
 
@@ -213,8 +213,8 @@ class WalletDetail(Wallet):
 class AgentStatus(BaseModel):
     running: bool
     interval_minutes: int = 15
-    last_cycle_at: Optional[datetime] = None
-    next_cycle_at: Optional[datetime] = None
+    last_cycle_at: datetime | None = None
+    next_cycle_at: datetime | None = None
     cycles_today: int = 0
     executions_today: int = 0
 
@@ -224,7 +224,7 @@ class CycleResult(BaseModel):
 
     cycle_id: str
     decision: Decision
-    execution: Optional[ExecutionResult] = None
+    execution: ExecutionResult | None = None
     ran_at: datetime
 
 
@@ -246,9 +246,9 @@ class RecipientResult(BaseModel):
     address: str
     amount: float
     status: RecipientStatus
-    signature: Optional[str] = None
-    explorer_url: Optional[str] = None
-    error: Optional[str] = None
+    signature: str | None = None
+    explorer_url: str | None = None
+    error: str | None = None
 
 
 class PayResult(BaseModel):
@@ -282,12 +282,12 @@ class PolicyUpdate(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-    max_single_transfer: Optional[float] = Field(default=None, gt=0)
-    max_daily_total: Optional[float] = Field(default=None, gt=0)
-    max_slippage_bps: Optional[int] = Field(default=None, ge=0, le=10_000)
-    min_buffers: Optional[dict[str, float]] = None
-    whitelist: Optional[list[str]] = None
-    auto_execute: Optional[bool] = None
+    max_single_transfer: float | None = Field(default=None, gt=0)
+    max_daily_total: float | None = Field(default=None, gt=0)
+    max_slippage_bps: int | None = Field(default=None, ge=0, le=10_000)
+    min_buffers: dict[str, float] | None = None
+    whitelist: list[str] | None = None
+    auto_execute: bool | None = None
 
 
 class AnalyzeRequest(BaseModel):
@@ -297,10 +297,10 @@ class AnalyzeRequest(BaseModel):
 
 class ExecuteRequest(BaseModel):
     decision_id: str
-    action_indices: Optional[list[int]] = Field(
+    action_indices: list[int] | None = Field(
         default=None, description="생략하면 Decision 의 모든 액션을 실행"
     )
-    approved_by: Optional[str] = None
+    approved_by: str | None = None
     dry_run: bool = False
 
 

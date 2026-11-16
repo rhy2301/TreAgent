@@ -12,9 +12,10 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from collections.abc import Coroutine
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from typing import Any, Coroutine, TypeVar
+from typing import Any, TypeVar
 
 import pytest
 
@@ -41,7 +42,7 @@ def ops_required_outflow(context: DecisionContext, now: datetime) -> Decimal:
 
 class TestBooking:
     def test_id_is_date_scoped(self) -> None:
-        now = datetime(2026, 8, 3, 9, 0, tzinfo=timezone.utc)
+        now = datetime(2026, 8, 3, 9, 0, tzinfo=UTC)
         assert inference_cost.inference_obligation_id(now) == "ob_inference_20260803"
 
     def test_amount_uses_assumption_not_measurement(self) -> None:
@@ -49,7 +50,7 @@ class TestBooking:
         scenario = load_scenario("normal_shortfall")
         # 실측 청구액을 터무니없이 크게 줘도 obligation 금액은 가정치를 따른다.
         booked, obligation_id = inference_cost.book_inference_cost(
-            scenario.context, scenario.now, cost_usdc=Decimal("999")
+            scenario.context, scenario.now, cost_usdc=Decimal(999)
         )
         assert obligation_id == "ob_inference_20260803"
         obligation = next(
@@ -59,7 +60,7 @@ class TestBooking:
             inference_cost.PROJECTED_DAILY_CALLS
         )
         assert obligation.amount_usdc == expected
-        assert obligation.amount_usdc != Decimal("999")
+        assert obligation.amount_usdc != Decimal(999)
 
     def test_no_payment_books_nothing(self) -> None:
         """결제가 없었으면(mock/폴백 경로) 없는 지출을 만들지 않는다."""
@@ -145,7 +146,7 @@ class TestRunway:
     def test_runway_is_days_not_call_count(self) -> None:
         """``balance / 단가`` 가 아니라 ``balance / (단가 x 일일 호출수)`` 다."""
         unit = Decimal("0.05")
-        days = inference_cost.estimated_runway_days(Decimal("480"), unit, 96)
+        days = inference_cost.estimated_runway_days(Decimal(480), unit, 96)
         assert days == Decimal("100.00")
 
     def test_unknown_balance_yields_none(self) -> None:

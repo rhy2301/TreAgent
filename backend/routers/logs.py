@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from fastapi import APIRouter, Query
 
 import mock_data
@@ -16,7 +14,7 @@ router = APIRouter(tags=["logs"])
 def list_logs(
     limit: int = Query(default=50, gt=0, le=200),
     offset: int = Query(default=0, ge=0),
-    type_filter: Optional[LogType] = Query(
+    type_filter: LogType | None = Query(
         default=None, alias="type", description="로그 종류로 필터"
     ),
 ) -> list[LogEntry]:

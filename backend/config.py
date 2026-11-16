@@ -41,7 +41,7 @@ class Settings:
     GEMINI_API_KEY: str
 
     @classmethod
-    def load(cls) -> "Settings":
+    def load(cls) -> Settings:
         return cls(
             MOCK_MODE=_env_bool("MOCK_MODE", default=False),
             GEMINI_API_KEY=os.getenv("GEMINI_API_KEY", "").strip().strip("'\""),

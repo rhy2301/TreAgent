@@ -13,8 +13,9 @@ payroll 지갑에 5,000 USDC 밖에 없는데 금요일에 28,000 USDC 급여 �
 from __future__ import annotations
 
 import random
-from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable, Optional
+from collections.abc import Iterable
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 # --------------------------------------------------------------------------- #
 # 기본값 / 유틸
@@ -26,7 +27,7 @@ EXPLORER_TX_URL = "https://explorer.solana.com/tx/{signature}?cluster=devnet"
 _BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 # 모듈이 import 되는 시점을 "지금"으로 잡아 데모 데이터가 항상 72시간 창 안에 들어오게 한다.
-BOOT_TIME = datetime.now(timezone.utc)
+BOOT_TIME = datetime.now(UTC)
 
 # 시드 데이터의 서명과 겹치지 않도록 고정 시드를 쓰지 않는다.
 _rng = random.Random()
@@ -35,7 +36,7 @@ _counters: dict[str, int] = {}
 
 def utcnow() -> datetime:
     """모든 타임스탬프의 단일 소스."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def next_id(prefix: str) -> str:
@@ -105,12 +106,12 @@ def list_wallets() -> list[dict[str, Any]]:
     return WALLETS
 
 
-def get_wallet(wallet_id: str) -> Optional[dict[str, Any]]:
+def get_wallet(wallet_id: str) -> dict[str, Any] | None:
     """지갑 id 로 조회. 없으면 None."""
     return next((w for w in WALLETS if w["id"] == wallet_id), None)
 
 
-def get_wallet_by_address(address: str) -> Optional[dict[str, Any]]:
+def get_wallet_by_address(address: str) -> dict[str, Any] | None:
     return next((w for w in WALLETS if w["address"] == address), None)
 
 
@@ -118,7 +119,7 @@ def total_usdc() -> float:
     return sum(w["usdc_balance"] for w in WALLETS)
 
 
-def adjust_balance(wallet_id: str, usdc_delta: float) -> Optional[dict[str, Any]]:
+def adjust_balance(wallet_id: str, usdc_delta: float) -> dict[str, Any] | None:
     """지갑 USDC 잔고를 증감시키고 updated_at 을 갱신한다."""
     wallet = get_wallet(wallet_id)
     if wallet is None:
@@ -209,8 +210,8 @@ PAYMENTS: list[dict[str, Any]] = [
 
 def list_payments(
     hours: int = 72,
-    wallet_id: Optional[str] = None,
-    status: Optional[str] = None,
+    wallet_id: str | None = None,
+    status: str | None = None,
 ) -> list[dict[str, Any]]:
     """`hours` 시간 내 예정 지출을 due_at 오름차순으로 반환한다."""
     horizon = utcnow() + timedelta(hours=hours)
@@ -222,7 +223,7 @@ def list_payments(
     return sorted(items, key=lambda p: p["due_at"])
 
 
-def get_payment(payment_id: str) -> Optional[dict[str, Any]]:
+def get_payment(payment_id: str) -> dict[str, Any] | None:
     return next((p for p in PAYMENTS if p["id"] == payment_id), None)
 
 
@@ -234,7 +235,7 @@ def add_payment(payment: dict[str, Any]) -> dict[str, Any]:
     return payment
 
 
-def set_payment_status(payment_id: str, status: str) -> Optional[dict[str, Any]]:
+def set_payment_status(payment_id: str, status: str) -> dict[str, Any] | None:
     payment = get_payment(payment_id)
     if payment is None:
         return None
@@ -332,7 +333,7 @@ def consume_daily(amount: float) -> float:
     return POLICY["daily_used"]
 
 
-def validate_action(action: dict[str, Any], policy: Optional[dict[str, Any]] = None) -> list[str]:
+def validate_action(action: dict[str, Any], policy: dict[str, Any] | None = None) -> list[str]:
     """단일 액션에 대한 정책 위반 목록을 반환한다. 빈 리스트면 통과."""
     policy = policy or POLICY
     violations: list[str] = []
@@ -375,7 +376,7 @@ def validate_action(action: dict[str, Any], policy: Optional[dict[str, Any]] = N
 
 
 def validate_actions(
-    actions: Iterable[dict[str, Any]], policy: Optional[dict[str, Any]] = None
+    actions: Iterable[dict[str, Any]], policy: dict[str, Any] | None = None
 ) -> dict[str, Any]:
     """액션 묶음 전체에 대한 PolicyCheck 딕셔너리를 만든다."""
     violations: list[str] = []
@@ -497,11 +498,11 @@ def build_decision(horizon_hours: int = 72) -> dict[str, Any]:
     return decision
 
 
-def get_decision(decision_id: str) -> Optional[dict[str, Any]]:
+def get_decision(decision_id: str) -> dict[str, Any] | None:
     return next((d for d in DECISIONS if d["id"] == decision_id), None)
 
 
-def latest_decision() -> Optional[dict[str, Any]]:
+def latest_decision() -> dict[str, Any] | None:
     return DECISIONS[-1] if DECISIONS else None
 
 
@@ -517,11 +518,11 @@ def add_execution(execution: dict[str, Any]) -> dict[str, Any]:
     return execution
 
 
-def get_execution(execution_id: str) -> Optional[dict[str, Any]]:
+def get_execution(execution_id: str) -> dict[str, Any] | None:
     return next((e for e in EXECUTIONS if e["id"] == execution_id), None)
 
 
-def find_committed_execution(decision_id: str) -> Optional[dict[str, Any]]:
+def find_committed_execution(decision_id: str) -> dict[str, Any] | None:
     """이미 자금이 움직인 실행 기록을 찾는다.
 
     blocked / simulated 는 자금이 움직이지 않았으므로 재실행을 허용한다.
@@ -539,8 +540,8 @@ def find_committed_execution(decision_id: str) -> Optional[dict[str, Any]]:
 def make_tx(
     tx_type: str,
     amount: float,
-    from_wallet: Optional[str] = None,
-    to_wallet: Optional[str] = None,
+    from_wallet: str | None = None,
+    to_wallet: str | None = None,
 ) -> dict[str, Any]:
     """확정된 트랜잭션 레코드 하나를 만든다."""
     signature = make_signature()
@@ -727,11 +728,11 @@ LOGS: list[dict[str, Any]] = [
 def add_log(
     log_type: str,
     title: str,
-    reasoning: Optional[str] = None,
-    signature: Optional[str] = None,
-    explorer: Optional[str] = None,
-    amount: Optional[float] = None,
-    status: Optional[str] = None,
+    reasoning: str | None = None,
+    signature: str | None = None,
+    explorer: str | None = None,
+    amount: float | None = None,
+    status: str | None = None,
 ) -> dict[str, Any]:
     """감사 로그를 한 건 추가하고 그 항목을 반환한다."""
     entry: dict[str, Any] = {
@@ -750,7 +751,7 @@ def add_log(
 
 
 def list_logs(
-    limit: int = 50, offset: int = 0, log_type: Optional[str] = None
+    limit: int = 50, offset: int = 0, log_type: str | None = None
 ) -> list[dict[str, Any]]:
     """최신순 로그 페이지."""
     items = LOGS if log_type is None else [entry for entry in LOGS if entry["type"] == log_type]
@@ -804,7 +805,7 @@ def list_alerts() -> list[dict[str, Any]]:
 
 
 def add_alert(
-    severity: str, title: str, message: str, decision_id: Optional[str] = None
+    severity: str, title: str, message: str, decision_id: str | None = None
 ) -> dict[str, Any]:
     alert: dict[str, Any] = {
         "id": next_id("alert"),

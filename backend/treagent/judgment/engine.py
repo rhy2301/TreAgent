@@ -17,7 +17,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any, Literal, Protocol, runtime_checkable
 
@@ -149,7 +149,7 @@ class JudgmentEngine:
         self, context: DecisionContext, now: datetime | None = None
     ) -> CycleOutcome:
         """판단 사이클 한 번."""
-        moment = now or datetime.now(timezone.utc)
+        moment = now or datetime.now(UTC)
         context_hash = context.context_hash()
         decision_id = f"dec_{context_hash[:16]}"
 

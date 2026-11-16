@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Optional
 
 import base58
 from solders.keypair import Keypair
@@ -47,14 +46,14 @@ class WalletInfo:
     public_key_env: str
     private_key_env: str
     # 이전 단계의 .env 에서 쓰던 키 이름. 하위 호환용 폴백.
-    legacy_public_key_env: Optional[str] = None
-    legacy_private_key_env: Optional[str] = None
+    legacy_public_key_env: str | None = None
+    legacy_private_key_env: str | None = None
     _address_cache: dict[str, str] = field(
         default_factory=dict, repr=False, compare=False
     )
 
     @property
-    def address(self) -> Optional[str]:
+    def address(self) -> str | None:
         """공개 주소. *_PUBLIC_KEY 가 없으면 프라이빗 키에서 유도한다.
 
         유도 결과는 캐시한다. 매 조회마다 base58 디코드 + ed25519 연산을 하지
@@ -131,7 +130,7 @@ WALLETS: dict[str, WalletInfo] = {
 # --------------------------------------------------------------------------- #
 
 
-def _read_env(name: str, legacy: Optional[str] = None) -> str:
+def _read_env(name: str, legacy: str | None = None) -> str:
     """환경변수를 읽고 따옴표/공백을 정리한다. legacy 이름은 폴백."""
     for candidate in (name, legacy):
         if not candidate:
@@ -241,7 +240,7 @@ def get_address_str(wallet_id: str) -> str:
     return str(get_address(wallet_id))
 
 
-def resolve_wallet_id(address: str) -> Optional[str]:
+def resolve_wallet_id(address: str) -> str | None:
     """주소로 내부 지갑 id 를 역조회한다. 외부 주소면 None."""
     for wallet_id, wallet in WALLETS.items():
         if wallet.address == address:

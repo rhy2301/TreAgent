@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -25,7 +25,7 @@ from treagent.judgment.models import (
     to_base_units,
 )
 
-NOW = datetime(2026, 8, 3, 9, 0, tzinfo=timezone.utc)
+NOW = datetime(2026, 8, 3, 9, 0, tzinfo=UTC)
 
 
 def _policy(**overrides: object) -> Policy:

@@ -6,7 +6,7 @@ main.py 에 등록된 exception handler 가 status_code 로 변환한다.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 
 class SolanaError(Exception):
@@ -96,8 +96,8 @@ class TransactionFailed(SolanaError):
     def __init__(
         self,
         detail: str,
-        signature: Optional[str] = None,
-        signatures: Optional[list[str]] = None,
+        signature: str | None = None,
+        signatures: list[str] | None = None,
         **context: Any,
     ) -> None:
         submitted = list(signatures or [])

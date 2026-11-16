@@ -17,7 +17,7 @@ MOCK_MODE 로 서버가 뜨는 것이 이 폴백의 존재 이유이기 때문�
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 import mock_data
 from config import settings
@@ -30,7 +30,7 @@ def _mock() -> bool:
     return settings.MOCK_MODE
 
 
-def _wallet_id_for(address: str) -> Optional[str]:
+def _wallet_id_for(address: str) -> str | None:
     """주소 -> 지갑 id. 외부 주소면 None."""
     wallet = mock_data.get_wallet_by_address(address)
     return wallet["id"] if wallet else None
@@ -183,7 +183,7 @@ async def get_recent_transactions(address: str, limit: int = 10) -> list[dict[st
     return await transfer.get_recent_transactions(address, limit)
 
 
-async def get_transaction(signature: str) -> Optional[dict[str, Any]]:
+async def get_transaction(signature: str) -> dict[str, Any] | None:
     """서명으로 확정된 트랜잭션 상세를 조회한다. 없으면 None."""
     if _mock():
         return next(

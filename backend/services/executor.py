@@ -6,11 +6,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 
 def execute(
-    decision: dict[str, Any], action_indices: Optional[list[int]] = None
+    decision: dict[str, Any], action_indices: list[int] | None = None
 ) -> dict[str, Any]:
     """Decision 의 액션을 순서대로 온체인에 실행한다.
 

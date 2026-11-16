@@ -10,8 +10,8 @@ Solana 온체인 트레저리의 예정 지출을 AI 가 예측하고,
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder

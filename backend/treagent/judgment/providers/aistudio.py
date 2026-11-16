@@ -196,7 +196,7 @@ class AIStudioGeminiProvider:
                 contents=build_contents(types, user, retry_error),
                 config=config,
             )
-        except Exception as exc:  # noqa: BLE001 - SDK 예외 종류가 많고 결론은 같다
+        except Exception as exc:
             self.last_error = f"{type(exc).__name__}: {exc}"
             raise ProviderError(f"Gemini 호출 실패: {self.last_error}") from exc
 
