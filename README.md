@@ -7,6 +7,7 @@ Web3 조직의 여러 온체인 지갑을 감시하다가, 예정된 급여·벤
 LLM은 판단만 하고, 실제 집행은 **PolicyGuard의 10단계 검사를 통과한 것만** 나갑니다.
 
 <!-- 데모 GIF 또는 대시보드 스크린샷 (예: docs/demo.gif) -->
+https://github.com/user-attachments/assets/b792b4a5-f2e0-4e9c-aebe-990a02f6aea7
 
 <!-- 🏆 해커톤 이름 · 수상 여부 -->
 `1인 개발` · `2026.08.01 – 08.03` · `Python` `FastAPI` `React` `TypeScript` `Solana` `Gemini` `x402`
